@@ -72,27 +72,39 @@ describe Oystercard do
        @card.top_up(15)
      end
 
-     it { is_expected.to respond_to(:touch_out) }
+     it { is_expected.to respond_to(:touch_out).with(1) }
 
      it "should change the in_use attribute to false" do
        @card.touch_in(:station)
-       @card.touch_out
+       @card.touch_out(:station)
        expect(@card.in_journey?).to eq false
      end
 
      it "should deduct the minimun balance after touch out" do
       @card.touch_in(:station)
-      expect { @card.touch_out }.to change{@card.balance}.by(- Oystercard::MINIMUM_BALANCE)
+      expect { @card.touch_out(:station) }.to change{@card.balance}.by(- Oystercard::MINIMUM_BALANCE)
     end
 
     it "should change the entry_station attribute back to nil" do
       @card.touch_in(:station)
-      @card.touch_out
+      @card.touch_out(:station)
       expect(subject.entry_station).to eq nil
     end
+
+    it "should save journey information in journeys attribute" do
+      @card.touch_in(:station)
+      @card.touch_out(:station)
+      expect(subject.journeys).to include({:station => :station})
   end
 
-  describe '#station' do
+end
+
+  describe '#journeys' do
+
+    it "should have a journey attribute that by default returns an empty array" do
+      expect(subject.journeys).to eq []
+    end
+
   end
 
 
