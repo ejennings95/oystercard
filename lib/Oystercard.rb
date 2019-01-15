@@ -6,7 +6,6 @@ class Oystercard
 
   def initialize
     @balance = 0
-    @in_use = false
     @entry_station = nil
   end
 
@@ -16,18 +15,17 @@ class Oystercard
   end
 
   def in_journey?
-    @in_use
+    @entry_station.nil? ? false : true
   end
 
   def touch_in(entry_station)
     insufficient_balance?
     @entry_station = entry_station
-    @in_use = true
   end
 
   def touch_out
     deduct(MINIMUM_BALANCE)
-    @in_use = false
+    @entry_station = nil
   end
 
 private

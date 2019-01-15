@@ -85,6 +85,11 @@ describe Oystercard do
       expect { @card.touch_out }.to change{@card.balance}.by(- Oystercard::MINIMUM_BALANCE)
     end
 
+    it "should change the entry_station attribute back to nil" do
+      @card.touch_in(:station)
+      @card.touch_out
+      expect(subject.entry_station).to eq nil
+    end
   end
 
   describe '#station' do
