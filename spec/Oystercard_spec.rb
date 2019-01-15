@@ -28,16 +28,16 @@ describe Oystercard do
 
   end
 
-  describe '#deduct' do
-
-    it { is_expected.to respond_to(:deduct).with(1) }
-
-    it "should be able to deduct an amount from the balance" do
-      subject.top_up(15)
-      expect(subject.deduct(5)).to eq 10
-    end
-
-   end
+  # describe '#deduct' do
+  #
+  #   it { is_expected.to respond_to(:deduct).with(1) }
+  #
+  #   it "should be able to deduct an amount from the balance" do
+  #     subject.top_up(15)
+  #     expect(subject.deduct(5)).to eq 10
+  #   end
+  #
+  #  end
 
    describe '#touch_in_touch_out' do
 
@@ -69,7 +69,11 @@ describe Oystercard do
        card = Oystercard.new
        expect { card.touch_in }.to raise_error "insufficient funds < #{Oystercard::MINIMUM_BALANCE}"
      end
-     
+
+     it "should deduct the minimun balance after touch out" do
+      @card.touch_in
+      expect { @card.touch_out }.to change{@card.balance}.by(- Oystercard::MINIMUM_BALANCE)
+    end
    end
 
 end
