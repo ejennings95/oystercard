@@ -2,7 +2,8 @@ require "Oystercard"
 
 describe Oystercard do
 
-  let(:station) { double(:station) }
+  let(:first_station) { double(:station) }
+  let(:exit_station) { double(:station) }
 
   describe '#balance' do
 
@@ -19,8 +20,7 @@ describe Oystercard do
     it { is_expected.to respond_to(:top_up).with(1) }
 
     it "should be able to top up the balance" do
-      subject.top_up(10)
-      expect(subject.balance).to eq 10
+      expect { subject.top_up(10) }.to change { subject.balance }.by 10
     end
 
     it "should not be able to have a balance over £90" do
@@ -43,26 +43,24 @@ describe Oystercard do
 
    describe '#touch_in' do
 
-     it "should start out of the journey" do
-       expect(subject.in_journey?).to eq false
-     end
+     # it "should start out of the journey" do
+     #   expect(subject.in_journey?).to eq false
+     # end
 
      it { is_expected.to respond_to(:touch_in).with(1) }
 
-     it "should change the in_use attribute to true" do
+     it "should change in_journey attribute to true" do
        subject.top_up(Oystercard::MINIMUM_BALANCE)
-       subject.touch_in(:station)
-       expect(subject.in_journey?).to eq true
+       expect { subject.touch_in(:first_station) }.to change { subject.in_journey? }.to true
      end
 
      it "should not be able to touch in if balance under £1" do
-       expect { subject.touch_in(:station) }.to raise_error "insufficient funds < #{Oystercard::MINIMUM_BALANCE}"
+       expect { subject.touch_in(:first_station) }.to raise_error "insufficient funds < #{Oystercard::MINIMUM_BALANCE}"
      end
 
      it "should store the given station in an entry_station attribute" do
        subject.top_up(Oystercard::MINIMUM_BALANCE)
-       subject.touch_in(:station)
-       expect(subject.entry_station).to eq :station
+       expect { subject.touch_in(:first_station) }.to change { subject.entry_station }.to :first_station
      end
 
    describe '#touch_out' do
@@ -70,32 +68,22 @@ describe Oystercard do
      before(:each) do
        @card = subject
        @card.top_up(15)
+       @card.touch_in(:first_station)
      end
 
      it { is_expected.to respond_to(:touch_out).with(1) }
 
-     it "should change the in_use attribute to false" do
-       @card.touch_in(:station)
-       @card.touch_out(:station)
-       expect(@card.in_journey?).to eq false
+     it "should change the in journey attribute to false" do
+       expect { @card.touch_out(:exit_station) }.to change { @card.in_journey? }.to false
      end
 
      it "should deduct the minimun balance after touch out" do
-      @card.touch_in(:station)
-      expect { @card.touch_out(:station) }.to change{@card.balance}.by(- Oystercard::MINIMUM_BALANCE)
+      expect { @card.touch_out(:exit_station) }.to change { @card.balance }.by(- Oystercard::MINIMUM_BALANCE)
     end
 
     it "should change the entry_station attribute back to nil" do
-      @card.touch_in(:station)
-      @card.touch_out(:station)
-      expect(subject.entry_station).to eq nil
+      expect { @card.touch_out(:exit_station) }.to change { @card.entry_station }.to nil
     end
-
-    it "should save journey information in journeys attribute" do
-      @card.touch_in(:station)
-      @card.touch_out(:station)
-      expect(subject.journeys).to include({:station => :station})
-  end
 
 end
 
@@ -105,7 +93,15 @@ end
       expect(subject.journeys).to eq []
     end
 
+    it "should save journey information in journeys attribute" do
+      subject.top_up(15)
+      subject.touch_in(:first_station)
+      subject.touch_out(:exit_station)
+      expect(subject.journeys).to include({ :first_station => :exit_station })
   end
+
+  end
+
 
 
   end
