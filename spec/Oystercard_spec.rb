@@ -41,24 +41,36 @@ describe Oystercard do
      it "should not be able to touch in if balance under £#{Oystercard::MINIMUM_BALANCE}" do
        expect { subject.touch_in(:first_station) }.to raise_error "insufficient funds < #{Oystercard::MINIMUM_BALANCE}"
      end
+
+     it 'should charge the penalty fare if already touched in' do
+        subject.top_up(Oystercard::MINIMUM_BALANCE)
+        subject.touch_in(:first_station)
+        expect {subject.touch_in(:station)}.to change {subject.balance}.by -Oystercard::PENALTY_FARE
+     end
+
    end
 
    describe '#touch_out' do
      before(:each) do
        @card = subject
        @card.top_up(15)
-       @card.touch_in(:first_station)
      end
 
      it { is_expected.to respond_to(:touch_out).with(1) }
 
      it 'should change the in journey attribute to false' do
+       @card.touch_in(:first_station)
        @card.touch_out(:exit_station)
        expect(@card.in_journey?).to eq false
      end
 
      it 'should deduct the minimun balance after touch out' do
-      expect { @card.touch_out(:exit_station) }.to change { @card.balance }.by(- Oystercard::MINIMUM_BALANCE)
+       @card.touch_in(:first_station)
+       expect { @card.touch_out(:exit_station) }.to change { @card.balance }.by(- Oystercard::MINIMUM_BALANCE)
+    end
+
+    it 'should deduct penalty are and start new journey if not touched in' do
+       expect {@card.touch_out(:station)}.to change {@card.balance}.by -Oystercard::PENALTY_FARE
     end
   end
 
