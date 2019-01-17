@@ -42,7 +42,7 @@ describe Oystercard do
      end
 
      it 'should charge the penalty fare if already touched in' do
-        subject.top_up(Oystercard::MINIMUM_BALANCE)
+        subject.top_up(Oystercard::MAXIMUM_BALANCE)
         subject.touch_in(:first_station)
         expect {subject.touch_in(:station)}.to change {subject.balance}.by -Oystercard::PENALTY_FARE
      end
