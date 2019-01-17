@@ -1,16 +1,15 @@
 require 'oystercard'
+require 'journey'
 
 describe Oystercard do
   let(:first_station) { double(:station) }
   let(:exit_station) { double(:station) }
 
-  describe '#balance' do
     it { is_expected.to respond_to(:balance) }
 
     it 'should have a default new balance of £0' do
       expect(subject.balance).to eq 0
     end
-  end
 
   describe '#top_up' do
     it { is_expected.to respond_to(:top_up).with(1) }
@@ -47,7 +46,6 @@ describe Oystercard do
         subject.touch_in(:first_station)
         expect {subject.touch_in(:station)}.to change {subject.balance}.by -Oystercard::PENALTY_FARE
      end
-
    end
 
    describe '#touch_out' do
@@ -67,12 +65,12 @@ describe Oystercard do
      it 'should deduct the minimun balance after touch out' do
        @card.touch_in(:first_station)
        expect { @card.touch_out(:exit_station) }.to change { @card.balance }.by(- Oystercard::MINIMUM_BALANCE)
-    end
+     end
 
-    it 'should deduct penalty are and start new journey if not touched in' do
-       expect {@card.touch_out(:station)}.to change {@card.balance}.by -Oystercard::PENALTY_FARE
+      it 'should deduct penalty are and start new journey if not touched in' do
+         expect {@card.touch_out(:station)}.to change {@card.balance}.by -Oystercard::PENALTY_FARE
+      end
     end
-  end
 
   describe '#journeys' do
     it 'should have a journey attribute that by default returns an empty array' do
@@ -82,8 +80,13 @@ describe Oystercard do
     it 'should save journey information in journeys attribute' do
       subject.top_up(15)
       subject.touch_in(:first_station)
+      expect(subject.journeys.last.entry).to be :first_station
+    end
+
+    it 'should save journey information in journeys attribute' do
+      subject.top_up(15)
       subject.touch_out(:exit_station)
-      expect(subject.journeys).to include({ entry: :first_station, exit: :exit_station })
+      expect(subject.journeys.last.exit).to be :exit_station
     end
   end
 end
