@@ -1,3 +1,5 @@
+require_relative 'station'
+
 class Journey
   MINIMUM_FARE = 1
   PENALTY_FARE = 6
@@ -16,8 +18,15 @@ class Journey
     @entry.nil? && @exit.nil?
   end
 
- def fare()
-   (new_journey?) || (complete?) ? MINIMUM_FARE : PENALTY_FARE
+ def fare
+   return MINIMUM_FARE if zone_boundaries_crossed == 0
+   (new_journey?) || (complete?) ? (zone_boundaries_crossed * MINIMUM_FARE) : PENALTY_FARE
+ end
+
+ private
+
+ def zone_boundaries_crossed
+   (Station.new.zone?(@entry.to_sym) - Station.new.zone?(@exit.to_sym)) * -1
  end
 
 end
