@@ -17,7 +17,7 @@ class Journey
     @entry.nil? && @exit.nil?
   end
 
-  # def fare
-  #   complete? ? MINIMUM_FARE : PENALTY_FARE
-  # end
+   def fare
+     (new_journey?) || (complete?) ? MINIMUM_FARE : PENALTY_FARE
+   end
 end
