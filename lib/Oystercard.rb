@@ -14,9 +14,6 @@ class Oystercard
     @journey = journey_class
   end
 
-  def create_journey(entry_station, exit_station)
-    @journey.new(entry_station, exit_station)
-  end
 
   def top_up(amount)
     oystercard_full?(amount)
@@ -45,7 +42,7 @@ private
   end
 
   def end_journey(exit_station)
-    @journeys.last.exit = exit_station
+    @journeys.last.finish(exit_station)
   end
 
   def start_journey(entry_station)
@@ -58,6 +55,10 @@ private
 
   def deduct(amount)
     @balance -= amount
+  end
+
+  def create_journey(entry_station, exit_station)
+    @journey.new(entry_station, exit_station)
   end
 
   def oystercard_full?(amount)

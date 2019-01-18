@@ -20,4 +20,9 @@ class Journey
    def fare
      (new_journey?) || (complete?) ? MINIMUM_FARE : PENALTY_FARE
    end
+
+  def finish(exit_station)
+    @exit = exit_station
+    self
+  end
 end
