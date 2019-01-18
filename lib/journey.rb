@@ -26,7 +26,7 @@ class Journey
  private
 
  def zone_boundaries_crossed
-   (Station.new.zone?(@entry.to_sym) - Station.new.zone?(@exit.to_sym)) * -1
+   (Station.new.zone?(@entry) - Station.new.zone?(@exit)) * -1
  end
 
 end

@@ -9,6 +9,7 @@ class Station
   end
 
   def zone?(station)
+    return 0 if station == nil
     @stations[station.to_sym]
   end
 
