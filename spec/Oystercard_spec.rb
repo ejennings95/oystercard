@@ -24,18 +24,10 @@ describe Oystercard do
     end
   end
 
-   describe '#touch_in' do
-     it 'should start out of the journey' do
-       expect(subject.in_journey?).to eq false
-     end
+    describe '#touch_in' do
+
 
      it { is_expected.to respond_to(:touch_in).with(1) }
-
-     it 'should change in_journey attribute to true' do
-       subject.top_up(Oystercard::MINIMUM_BALANCE)
-       subject.touch_in(:first_station)
-       expect(subject.in_journey?).to eq true
-     end
 
      it "should not be able to touch in if balance under £#{Oystercard::MINIMUM_BALANCE}" do
        expect { subject.touch_in(:first_station) }.to raise_error "insufficient funds < #{Oystercard::MINIMUM_BALANCE}"
@@ -56,12 +48,6 @@ describe Oystercard do
 
      it { is_expected.to respond_to(:touch_out).with(1) }
 
-     it 'should change the in journey attribute to false' do
-       @card.touch_in(:first_station)
-       @card.touch_out(:exit_station)
-       expect(@card.in_journey?).to eq false
-     end
-
      it 'should deduct the minimun balance after touch out' do
        @card.touch_in(:first_station)
        expect { @card.touch_out(:exit_station) }.to change { @card.balance }.by(- Oystercard::MINIMUM_BALANCE)
@@ -71,22 +57,4 @@ describe Oystercard do
          expect {@card.touch_out(:station)}.to change {@card.balance}.by -Oystercard::PENALTY_FARE
       end
     end
-
-  describe '#journeys' do
-    it 'should have a journey attribute that by default returns an empty array' do
-      expect(subject.journeys).to eq []
-    end
-
-    it 'should save journey information in journeys attribute' do
-      subject.top_up(15)
-      subject.touch_in(:first_station)
-      expect(subject.journeys.last.entry).to be :first_station
-    end
-
-    it 'should save journey information in journeys attribute' do
-      subject.top_up(15)
-      subject.touch_out(:exit_station)
-      expect(subject.journeys.last.exit).to be :exit_station
-    end
-  end
 end

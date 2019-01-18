@@ -1,5 +1,6 @@
 require_relative 'station'
 require_relative 'journey'
+require_relative 'journey_log'
 
 class Oystercard
 
@@ -8,57 +9,35 @@ class Oystercard
   PENALTY_FARE = 6
   attr_reader :balance, :journeys
 
-  def initialize(journey_class = Journey)
+  def initialize(journey_log = JourneyLog.new)
     @balance = 0
-    @journeys = []
-    @journey = journey_class
+    @journey_log = journey_log  
   end
-
 
   def top_up(amount)
     oystercard_full?(amount)
     @balance += amount
   end
 
-  def in_journey?
-    @journeys == [] ? false : !@journeys.last.complete?
-  end
-
   def touch_in(entry_station)
     insufficient_balance?
-    fare if in_journey?
-    start_journey(entry_station)
+    fare if @journey_log.in_journey?
+    @journey_log.start(entry_station)
   end
 
   def touch_out(exit_station)
-    in_journey? ?  end_journey(exit_station) : didnt_touch_in(exit_station)
+    @journey_log.end(exit_station)
     fare
   end
 
 private
 
-  def didnt_touch_in(exit_station)
-    @journeys << create_journey(nil, exit_station)
-  end
-
-  def end_journey(exit_station)
-    @journeys.last.finish(exit_station)
-  end
-
-  def start_journey(entry_station)
-    @journeys << create_journey(entry_station, nil)
-  end
-
   def fare
-    deduct(@journeys.last.fare)
+    deduct(@journey_log.journeys.last.fare)
   end
 
   def deduct(amount)
     @balance -= amount
-  end
-
-  def create_journey(entry_station, exit_station)
-    @journey.new(entry_station, exit_station)
   end
 
   def oystercard_full?(amount)
